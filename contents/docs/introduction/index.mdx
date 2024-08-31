@@ -1,0 +1,65 @@
+# Introduction
+
+## 1.1. Overview
+
+Starfall is a Neon-powered starter kit to streamline building full-stack web applications for developers.
+
+It comes equipped with everything developers need to create cutting-edge, high-performance apps.
+
+A quick look at what Starfall offers:
+
+- **Next.js:** A powerful React framework that makes it easy to build SEO-friendly, fast web apps. Enables us to easily do server-side rendering and build static websites.
+- **Tailwind CSS:** A utility-first CSS framework for rapidly building custom designs.
+- **Shadcn/UI:** A kit of prebuilt UI components This is perfect for creating visually attractive user interfaces.
+- **Aceternity UI:** for other design elements that can make the overall application a little more aesthetically appealing.
+- **Neon:** A serverless PostgreSQL database. It’s easy to manage and scales as your app scales.
+- **Drizzle ORM:** An ORM (Object-Relational Mapping) tool that simplifies database operations, making it easier to interact with the database.
+    - **SQL-like:** Allows you to write queries that feel like plain SQL.
+    - **Relational:** Supports traditional relational database features.
+- **Clerk:** This handles user authentication. It’s secure and flexible, managing sign-in, sign-up, and user profiles.
+    
+    > We use webhooks to connect Clerk with the database. This way, whenever a user is created, they’re also added to our backend.
+    > 
+- **TypeScript:** An upgrade to JavaScript that adds static typing. It helps catch errors early and makes your code more predictable.
+
+## 1.2. Purpose
+
+The purpose of Starfall is to provide developers with an easy-to-use full-stack web application.
+
+It has all the resources you want to construct innovative, scalable & reactive applications.
+
+If you are a developer looking for something that gives solid ground with which to get started quickly, then this starter kit is the way forward.
+
+## 1.3. Getting Started
+
+To begin using Starfall, all that is required is a couple of things.
+
+- Well, the first thing you should do is make sure that Node.js is installed on your computer.
+- You will even need npm, which is a tool for package management.
+- After that, you're all set up to enter Starfall and build your app.
+    
+    ```bash
+    git clone https://github.com/ArjunCodess/neon-oss-starter-kit.git my-app
+    ```
+    
+    ```bash
+    cd my-app
+    ```
+    
+    ```bash
+    npm install
+    ```
+    
+    ```bash
+    npm run dev
+    ```
+    
+    Your terminal should be looking like this, by now.
+    
+    ![image.png](/intro1.png)
+    
+- And now, open [localhost:3000](http://localhost:3000) on your browser to continue.
+    
+    Guess what? This doesn't work and the site throws an error!
+    
+    The reason is the environment variables. Let’s take a look at them in the next section.

@@ -1,6 +1,6 @@
-## Documentation Template
+## Starfall Documentation
 
-This feature-packed documentation template, built with Next.js, offers a sleek and responsive design, perfect for all your project documentation needs.
+This feature-packed documentation, built with Next.js, offers a sleek and responsive design, perfect for all your project documentation needs.
 
 <br/>
 

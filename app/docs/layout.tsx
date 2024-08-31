@@ -1,4 +1,5 @@
 import { Leftbar } from "@/components/leftbar";
+import { Metadata } from "next";
 
 export default function DocsLayout({
     children,

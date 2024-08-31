@@ -7,36 +7,35 @@ import { Footer } from "@/components/footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Docs stater template",
-  metadataBase: new URL("https://docstemplate.vercel.app/"),
-  description:
-    "This comprehensive documentation template, crafted with Next.js and available as open-source, delivers a sleek and responsive design, tailored to meet all your project documentation requirements.",
+    title: "Starfall Documentation",
+    metadataBase: new URL("https://starfall-docs.vercel.app/"),
+    description: "Comprehensive documentation for Starfall, a Neon-powered full-stack starter kit featuring Next.js, Tailwind CSS, Shadcn/UI, and more. Build scalable and reactive web applications with ease.",
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${GeistSans.variable} ${GeistMono.variable} font-regular`}
-        suppressHydrationWarning
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Navbar />
-          <main className="sm:container mx-auto w-[85vw] h-auto">
-            {children}
-          </main>
-          <Footer />
-        </ThemeProvider>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en" suppressHydrationWarning>
+            <body
+                className={`${GeistSans.variable} ${GeistMono.variable} font-regular`}
+                suppressHydrationWarning
+            >
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <Navbar />
+                    <main className="sm:container mx-auto w-[85vw] h-auto">
+                        {children}
+                    </main>
+                    <Footer />
+                </ThemeProvider>
+            </body>
+        </html>
+    );
 }

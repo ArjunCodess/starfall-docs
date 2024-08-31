@@ -14,10 +14,10 @@ export const ROUTES: EachRoute[] = [
     noLink: true,
     items: [
       { title: "Introduction", href: "/introduction" },
-      {
-        title: "Configuration",
-        href: "/configuration",
-      },
+      { title: "Installation", href: "/installation" },
+      { title: "Configuration", href: "/configuration" },
+      { title: "File and Folder Structure", href: "/structure" },
+      { title: "Features and Components", href: "/features" },
     ],
   },
 ];

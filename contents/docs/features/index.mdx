@@ -1,0 +1,489 @@
+# Features and Components
+
+## 4.1. Authentication
+
+The application uses Clerk for authentication, providing a seamless and secure user experience.
+
+### Sign-In Page
+
+The sign-in page is implemented using Clerk's `SignIn` component:
+
+```jsx:app/(auth)/sign-in/[[...sign-in]]/page.tsx
+import { SignIn } from "@clerk/nextjs";
+
+export default function Page() {
+    return (
+        <div className="flex items-center justify-center min-h-[80vh] pt-20">
+            <SignIn
+                path="/sign-in"
+                routing="path"
+                signUpUrl="/sign-up"
+                afterSignInUrl="/dashboard"
+            />
+        </div>
+    );
+}
+```
+
+This component handles the entire sign-in process, including UI and authentication logic. It's configured to use path-based routing and redirects users to the dashboard after successful sign-in.
+
+### Sign-Up Page
+
+The sign-up page is similarly implemented using Clerk's `SignUp` component:
+
+```jsx:app/(auth)/sign-up/[[...sign-up]]/page.tsx
+import { SignUp } from "@clerk/nextjs";
+
+export default function Page() {
+    return (
+        <div className="flex items-center justify-center min-h-[80vh] pt-20">
+            <SignUp
+                path="/sign-up"
+                routing="path"
+                signInUrl="/sign-in"
+                afterSignUpUrl="/dashboard"
+            />
+        </div>
+    );
+}
+```
+
+This component handles user registration, with similar configuration to the sign-in page.
+
+## 4.2. Database
+
+The application uses a PostgreSQL database hosted on Neon, with Drizzle ORM for database operations.
+
+### Schema Definition
+
+The database schema is defined using Drizzle ORM:
+
+```jsx:db/schema.ts
+import { relations } from "drizzle-orm";
+import { text, boolean, pgTable, uuid, timestamp } from "drizzle-orm/pg-core";
+
+export const todos = pgTable("todos", {
+    id: uuid('id').primaryKey().defaultRandom(),
+    text: text("text").notNull(),
+    done: boolean("done").default(false).notNull(),
+    userId: uuid("user_id").notNull().references(() => users.id),
+});
+
+export const users = pgTable("users", {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    clerkId: text("clerkId").notNull(),
+    // ... other fields
+});
+
+// Relations
+export const todosRelations = relations(todos, ({ one }) => ({
+    user: one(users, { fields: [todos.userId], references: [users.id] }),
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+    todos: many(todos),
+}));
+```
+
+This schema defines two main tables: `todos` and `users`, along with their relationships.
+
+### Drizzle ORM Setup
+
+Drizzle ORM is configured to interact with the Neon database:
+
+```jsx:db/drizzle.ts
+import { config } from "dotenv";
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
+import * as schema from "./schema";
+
+config({ path: ".env.local" });
+
+const sql = neon(process.env.DATABASE_URL!);
+
+export const db = drizzle(sql, { schema });
+```
+
+This setup allows for efficient and type-safe database operations throughout the application.
+
+## 4.3. API Routes
+
+### Clerk Webhooks
+
+The application includes a webhook handler for Clerk events:
+
+```jsx:app/api/webhooks/clerk/route.ts
+import { Webhook } from "svix";
+import { headers } from "next/headers";
+import { WebhookEvent } from "@clerk/nextjs/server";
+import { addUser, updateUser } from "@/actions/user-actions";
+import { NextResponse } from "next/server";
+import { User } from "@/types";
+
+// ... webhook handling logic
+```
+
+This route handles events such as user creation and updates, syncing Clerk user data with the application's database.
+
+## 4.4. Server Actions
+
+The application uses server actions for database operations, providing a clean separation between client and server-side logic.
+
+### User Actions
+
+User-related actions include:
+
+```jsx:actions/user-actions.ts
+export const getAllUsers = async () => {
+    const data = await db.select().from(users);
+    return data;
+};
+
+export const addUser = async (user: User) => {
+    await db.insert(users).values({
+        // ... user data
+    });
+    revalidatePath("/");
+};
+
+// ... other user actions
+```
+
+These actions handle user data retrieval, creation, and updates.
+
+### Todo Actions
+
+Todo-related actions include:
+
+```jsx:actions/todo-actions.ts
+export const addTodo = async (id: any, text: string, userId: any) => {
+    await db.insert(todos).values({
+        id,
+        text,
+        userId,
+    });
+    revalidatePath("/");
+};
+
+export const deleteTodo = async (id: any) => {
+    await db.delete(todos).where(eq(todos.id, `${id}`));
+    revalidatePath("/");
+};
+
+// ... other todo actions
+```
+
+These actions handle CRUD operations for todo items.
+
+## 4.5. UI Components
+
+### Navbar
+
+The Navbar component is a responsive navigation bar with dynamic rendering based on user authentication status:
+
+```jsx:components/navbar.tsx
+export default function Navbar() {
+    const { isSignedIn, user } = useUser();
+    // ... component logic
+
+    return (
+        <header>
+            <nav className="sticky top-0 z-50 bg-background backdrop-blur-lg border-b h-[8vh] flex items-center justify-between px-4 md:px-6">
+                {/* ... navigation items */}
+                {isSignedIn ? <UserButton /> : (
+                    <Link href="/sign-in">
+                        <ShimmerButton>Log In</ShimmerButton>
+                    </Link>
+                )}
+                {/* ... mobile menu */}
+            </nav>
+        </header>
+    );
+}
+```
+
+### Footer
+
+The Footer component is referenced in the layout file but not fully shown in the provided snippets.
+
+## 4.6. Admin Dashboard
+
+The admin dashboard provides an overview of users and todos:
+
+```jsx:app/(root)/admin/page.tsx
+export default async function Page() {
+    const usersData = await db.select().from(users);
+    const todosData = await db
+        .select({
+            // ... selected fields
+        })
+        .from(todos)
+        .leftJoin(users, eq(users.id, todos.userId));
+
+    return (
+        <section>
+            <div className="md:mt-10 p-5">
+                <h2>Users</h2>
+                <UserTable users={usersData as User[]} />
+            </div>
+            <div className="md:mt-10 p-5">
+                <h2>Todos</h2>
+                <TodoTable todos={todosData} />
+            </div>
+            {/* ... other admin components */}
+        </section>
+    );
+}
+```
+
+This dashboard uses server-side rendering to fetch and display data about users and todos.
+
+## 4.7. Todo Application
+
+The core todo functionality is implemented across several components:
+
+```jsx:components/todos.tsx
+const Todos: FC<Props> = ({ todos = [], user }) => {
+    const [todoItems, setTodoItems] = useState<todoType[]>(todos);
+
+    const createTodo = (text: string) => {
+        const id = uuid();
+        addTodo(id, text, user.id);
+        setTodoItems((prev) => [
+            { id, text, done: false, userId: user.id },
+            ...prev,
+        ]);
+    };
+
+    // ... other todo operations
+
+    return (
+        <Card className="w-full max-w-2xl mx-auto border-0">
+            <CardHeader>
+                <CardTitle>Todo App</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <AddTodo createTodo={createTodo} />
+                <div className="mt-4">
+                    <AnimatePresence initial={false}>
+                        {todoItems.map((todo) => (
+                            <Todo
+                                key={todo.id}
+                                todo={todo}
+                                changeTodoText={changeTodoText}
+                                toggleIsTodoDone={toggleIsTodoDone}
+                                deleteTodoItem={deleteTodoItem}
+                            />
+                        ))}
+                    </AnimatePresence>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
+```
+
+This section handles the status of tasks in a todo list. Offers features, for creating, reading, updating and deleting tasks efficiently and effectively. It incorporates updates to ensure a smooth user interaction and incorporates animations to enhance the overall user interface. 
+
+The Todo App showcases how React hooks and server actions work together with UI components to deliver an engaging user experience.
+
+Here's the formatted breakdown of the admin components with cleaned-up code blocks:
+
+## 4.8. Awesome Admin Components
+
+These beautiful admin components are a stunning addition to your website.
+
+The best part? It's **completely free** to use!
+
+Here are the components you get:
+
+### 3D Cube
+
+The 3D Cube component is a visually stunning element that you can add into your website. Here are the key aspects:
+
+1. **Scene Setup:**
+
+```jsx
+// Scene setup
+const scene = new THREE.Scene()
+sceneRef.current = scene
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+const renderer = new THREE.WebGLRenderer({ antialias: true })
+rendererRef.current = renderer
+renderer.setSize(window.innerWidth, window.innerHeight)
+mountRef.current.appendChild(renderer.domElement)
+```
+
+2. **Cube Grid Creation:**
+
+```jsx
+for (let y = 0; y < gridSize; y++) {
+    const row = new THREE.Group()
+    for (let x = 0; x < gridSize; x++) {
+        for (let z = 0; z < gridSize; z++) {
+            const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize)
+            const edges = new THREE.EdgesGeometry(geometry)
+            const material = new THREE.MeshPhongMaterial({
+                color: cubeFaceColor,
+                shininess: 100,
+                specular: 0xffffff
+            })
+            const cube = new THREE.Mesh(geometry, material)
+            const line = new THREE.LineSegments(
+                edges,
+                new THREE.LineBasicMaterial({ color: cubeOutlineColor })
+            )
+
+            cube.position.set(
+                x * (cubeSize + gap) - offset,
+                0,
+                z * (cubeSize + gap) - offset
+            )
+            line.position.copy(cube.position)
+
+            row.add(cube)
+            row.add(line)
+        }
+    }
+    row.position.y = y * (cubeSize + gap) - offset
+    rowsRef.current.push(row)
+    group.add(row)
+}
+```
+
+3. **Lighting:**
+
+```jsx
+// Add lighting
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
+scene.add(ambientLight)
+
+// Strong white top light
+const topLight = new THREE.DirectionalLight(0xffffff, 1.5)
+topLight.position.set(0, 10, 0)
+topLight.target.position.set(0, 0, 0)
+scene.add(topLight)
+scene.add(topLight.target)
+
+// Subtle fill lights
+const fillLight1 = new THREE.DirectionalLight(0xffffff, 0.3)
+fillLight1.position.set(5, -2, 5)
+scene.add(fillLight1)
+
+const fillLight2 = new THREE.DirectionalLight(0xffffff, 0.3)
+fillLight2.position.set(-5, -2, -5)
+scene.add(fillLight2)
+```
+
+4. **Animation:**
+
+```jsx
+const animate = (time: number) => {
+    if (sceneRef.current && rendererRef.current && groupRef.current) {
+        requestAnimationFrame(animate)
+
+        // Whole cube auto-rotation
+        if (!isDragging) {
+            group.rotation.x += wholeCubeRotationSpeed
+            group.rotation.y += wholeCubeRotationSpeed
+        }
+
+        // Timed row rotation
+        if (!isRotating && time - rotationStartTime > pauseDuration) {
+            isRotating = true
+            rotationStartTime = time
+        }
+
+        if (isRotating) {
+            const progress = (time - rotationStartTime) / rotationDuration
+            if (progress < 1) {
+                const angle = progress * Math.PI / 2 // 90 degrees
+                rowsRef.current[currentRowIndex].rotation.y = angle
+            } else {
+                rowsRef.current[currentRowIndex].rotation.y = Math.PI / 2
+                isRotating = false
+                currentRowIndex = (currentRowIndex + 1) % rowsRef.current.length
+                rotationStartTime = time
+            }
+        }
+
+        rendererRef.current.render(sceneRef.current, camera)
+    }
+}
+```
+
+### Hero Component
+
+The Hero component is designed to create an impactful first impression. Key features include:
+
+1. **Gradient Background:**
+
+```jsx
+<div className="mt-6 md:mt-12 py-3 flex items-center text-muted-foreground text-sm gap-x-1.5 after:flex-[1_1_0%] after:border-t after:ms-6 after:border-t-muted-foreground/50">
+    <span className="font-semibold bg-clip-text bg-gradient-to-l from-blue-600 to-violet-500 text-transparent dark:from-blue-400 dark:to-violet-400">
+        50,000
+    </span>
+    individuals and companies use this!
+</div>
+```
+
+2. **Client Logos:**
+
+```jsx
+<div className="flex flex-wrap gap-x-6 sm:gap-x-12 lg:gap-x-24">
+    <svg
+        className="py-3 lg:py-5 w-16 h-auto md:w-20 lg:w-24 text-muted-foreground"
+        enableBackground="new 0 0 2499 614"
+        viewBox="0 0 2499 614"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+```
+
+### Pricing Component
+
+The Pricing component presents different plan options in a clear, comparative format:
+
+1. **Responsive Design:**
+
+```jsx
+<div className="space-y-24 lg:hidden">
+    {['Free', 'Startup', 'Team', 'Enterprise'].map((plan) => (
+        <section key={plan}>
+            <div className="mb-4">
+                <h4 className="text-xl font-medium">{plan}</h4>
+            </div>
+            <Table>
+                {planFeatures.map((featureType) => (
+                    <>
+                        <TableRow
+                            key={featureType.type}
+                            className="bg-muted/50 hover:bg-muted"
+                        >
+                            <TableCell
+                                colSpan={2}
+                                className="w-10/12 text-primary font-bold"
+                            >
+                                {featureType.type}
+                            </TableCell>
+                        </TableRow>
+                    </>
+                ))}
+            </Table>
+        </section>
+    ))}
+</div>
+```
+
+2. **Feature Comparison:**
+
+The section consists of a detailed table that compares characteristics among various options for users to easily select the most suitable one.
+
+The application integrates Clerk for user authentication, using SignIn and SignUp components for login and signup.
+
+It uses a PostgreSQL database with Drizzle ORM for data management, including schema definition and server actions.
+
+The UI features a responsive Navbar, Todo Management, and Dynamic Admin Dashboard with advanced elements like a 3D Cube and impactful Hero and Pricing components given specially to the admin that no other user can access.
+
+All of these features work together to make a **perfect starter kit** for your next project.

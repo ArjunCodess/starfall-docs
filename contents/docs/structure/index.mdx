@@ -1,0 +1,170 @@
+# File and Folder Structure
+
+## 3.1. Overview
+
+```
+neon-oss-starter-kit
+├─ .env.example
+├─ .eslintrc.json
+├─ .gitignore
+├─ README.md
+├─ actions
+│  ├─ todo-actions.ts
+│  └─ user-actions.ts
+├─ app
+│  ├─ (auth)
+│  │  ├─ sign-in
+│  │  │  └─ [[...sign-in]]
+│  │  │     └─ page.tsx
+│  │  └─ sign-up
+│  │     └─ [[...sign-up]]
+│  │        └─ page.tsx
+│  ├─ (root)
+│  │  ├─ admin
+│  │  │  └─ page.tsx
+│  │  ├─ dashboard
+│  │  │  └─ page.tsx
+│  │  └─ page.tsx
+│  ├─ api
+│  │  └─ webhooks
+│  │     └─ clerk
+│  │        └─ route.ts
+│  ├─ data
+│  │  └─ index.ts
+│  ├─ favicon.ico
+│  ├─ layout.tsx
+│  └─ not-found.tsx
+├─ components.json
+├─ components
+│  ├─ add-todo.tsx
+│  ├─ admin
+│  │  ├─ 3d-cube.tsx
+│  │  ├─ authentication.tsx
+│  │  ├─ hero.tsx
+│  │  └─ pricing.tsx
+│  ├─ bento-grid.tsx
+│  ├─ call-to-action.tsx
+│  ├─ component-list.tsx
+│  ├─ credit.tsx
+│  ├─ footer.tsx
+│  ├─ logos.tsx
+│  ├─ magicui
+│  │  └─ shimmer-button.tsx
+│  ├─ mode-toggle.tsx
+│  ├─ navbar.tsx
+│  ├─ pagination-controls.tsx
+│  ├─ pricing.tsx
+│  ├─ theme-provider.tsx
+│  ├─ todo.tsx
+│  ├─ todos-table.tsx
+│  ├─ todos.tsx
+│  ├─ ui
+│  │  ├─ avatar.tsx
+│  │  ├─ background-beams.tsx
+│  │  ├─ badge.tsx
+│  │  ├─ bento-grid.tsx
+│  │  ├─ button.tsx
+│  │  ├─ card.tsx
+│  │  ├─ checkbox.tsx
+│  │  ├─ component.tsx
+│  │  ├─ dialog.tsx
+│  │  ├─ dropdown-menu.tsx
+│  │  ├─ icons.tsx
+│  │  ├─ input.tsx
+│  │  ├─ label.tsx
+│  │  ├─ marquee.tsx
+│  │  ├─ navigation-menu.tsx
+│  │  ├─ scroll-area.tsx
+│  │  ├─ separator.tsx
+│  │  ├─ sheet.tsx
+│  │  ├─ stars-background-dark.tsx
+│  │  ├─ stars-background-light.tsx
+│  │  ├─ switch.tsx
+│  │  └─ table.tsx
+│  ├─ users-table.tsx
+│  └─ video-player.tsx
+├─ db
+│  ├─ drizzle.ts
+│  └─ schema.ts
+├─ drizzle.config.ts
+├─ lib
+│  └─ utils.ts
+├─ middleware.ts
+├─ next.config.mjs
+├─ package-lock.json
+├─ package.json
+├─ postcss.config.mjs
+├─ public
+│  ├─ favicon.ico
+│  ├─ hero.webp
+│  ├─ rickroll.mp4
+│  └─ vercel.svg
+├─ styles
+│  └─ globals.css
+├─ tailwind.config.ts
+├─ tsconfig.json
+└─ types
+   └─ index.ts
+```
+
+## 3.2. Root Directory
+  - Description of key files (package.json, README.md, .env, etc.).
+
+## 3.3. app/ Directory
+  - **(auth)/**: Contains authentication pages.
+    - **sign-in/[[...sign-in]]/page.tsx**: Sign-in page.
+    - **sign-up/[[...sign-up]]/page.tsx**: Sign-up page.
+  - **(root)/**: Root application components.
+    - **admin/page.tsx**: Admin dashboard page.
+    - **dashboard/page.tsx**: Displays the main dashboard for the application.
+  - **api/**: Serverless API routes.
+    - **webhooks/clerk/route.ts**: Handles Clerk webhooks for user management.
+  - **data/index.ts**: Centralized data management and export.
+  - **favicon.ico**: The application's favicon.
+  - **layout.tsx**: Defines the global layout structure of the application.
+  - **not-found.tsx**: Custom 404 page displayed when a route is not found.
+
+## 3.4. components/ Directory
+  - **admin/**
+    - **3d-cube.tsx**: Creates an interactive 3D cube using Three.js, with rotation and hover effects.
+    - **authentication.tsx**: Provides authentication forms for sign-up and login functionality.
+    - **hero.tsx**: Implements a hero section for the admin dashboard with a headline, description, and image.
+    - **pricing.tsx**: Displays pricing tiers with feature comparisons in a responsive grid layout.
+  - **magicui/**
+    - **shimmer-button.tsx**: Implements a button with a shimmering effect for enhanced visual appeal.
+  - **ui/**
+    - Shadcn/UI components.
+  - **add-todo.tsx**: Handles adding new todos to the list.
+  - **bento-grid.tsx**: Implements a responsive grid layout for showcasing various features of the application.
+  - **call-to-action.tsx**: Creates an attention-grabbing section with a headline, description, and action buttons.
+  - **component-list.tsx**: Displays a list of admin components, including 3D Cube, Pricing, Hero, and Authentication.
+  - **credit.tsx**: Renders a section to give credit to contributors or sponsors.
+  - **footer.tsx**: Renders the website footer with multiple columns of links and a large product name display.
+  - **logos.tsx**: An empty file, possibly intended for logo components.
+  - **mode-toggle.tsx**: Allows users to switch between light and dark modes.
+  - **navbar.tsx**: Creates a navigation bar with dropdown menus, user authentication, and mobile responsiveness.
+  - **pagination-controls.tsx**: Implements controls for paginating through lists of data.
+  - **pricing.tsx**: Displays pricing tiers with feature comparisons in a responsive grid layout.
+  - **theme-provider.tsx**: Provides theme context to the application, allowing for dynamic theme changes.
+  - **todo.tsx**: Represents an individual todo item with options to edit, delete, and mark as complete.
+  - **todos-table.tsx**: Displays a table of todos with sorting and filtering options.
+  - **todos.tsx**: Manages the main todo list functionality, including adding, editing, and deleting todos.
+  - **users-table.tsx**: Displays a table of users with pagination controls and avatar images.
+  - **video-player.tsx**: Implements a video player component for displaying video content.
+
+## 3.5. db/ Directory
+  - **schema.ts**: Database schema defining tables for users and todos.
+  - **drizzle.ts**: Drizzle ORM configuration.
+
+## 3.6. actions/ Directory
+  - **user-actions.ts**: Server actions related to user operations.
+  - **todo-actions.ts**: Server actions related to todo operations.
+
+## 3.7. public/ Directory
+  - Static assets like images, fonts, etc.
+
+## 3.8. types/ Directory
+  - TypeScript type definitions.
+
+## 3.9. utils/ Directory
+  - Utility functions and helpers.
